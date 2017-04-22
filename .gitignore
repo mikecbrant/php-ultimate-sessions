@@ -2,7 +2,3 @@ build/
 
 # Composer
 vendor/
-
-# Aptana Studio
-.project
-.settings/

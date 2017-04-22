@@ -3,7 +3,7 @@
     "description": "PSR-4 PHP Package Boilerplate.",
     "type": "library",
     "keywords": [
-        "session"
+        "session",
         "secure",
         "secure session",
         "encryption",
