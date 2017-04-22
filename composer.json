@@ -1,0 +1,35 @@
+{
+    "name": "mikecbrant/php-ultimate-sessions",
+    "description": "PSR-4 PHP Package Boilerplate.",
+    "type": "library",
+    "keywords": [
+        "session"
+        "secure",
+        "secure session",
+        "encryption",
+        "encrypted session",
+        "SessionHandler"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mike Brant",
+            "email": "mikebranttx@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6",
+        "defuse/php-encryption": "*",
+        "ext-openssl": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": ">=5.7",
+        "phpunit/php-code-coverage": "*",
+        "codeclimate/php-test-reporter": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "MikeBrant\\UltimateSessionHanlder\\": "src/UltimateSessionHandler"
+        }
+    }
+}

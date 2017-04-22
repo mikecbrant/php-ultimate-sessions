@@ -1,0 +1,20 @@
+language: php
+
+php:
+    - '5.6'
+    - '7.0'
+    - '7.1'
+    - hhvm
+    - nightly
+    
+env:
+    - CODECLIMATE_REPO_TOKEN=41b37cbcf8aeb321ffd0e6851125945fc6808ccec17f93ab517717e985ce3daf
+
+install:
+    - travis_retry composer update
+
+script:
+    - vendor/bin/phpunit
+
+after_success:
+    - vendor/bin/test-reporter
