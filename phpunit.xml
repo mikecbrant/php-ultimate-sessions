@@ -10,13 +10,13 @@
          stopOnFailure="false"
          syntaxCheck="false">
     <testsuites>
-        <testsuite name="UltimateSessionHandler Test Suite">
+        <testsuite name="UltimateSessions Test Suite">
             <directory suffix=".php">./tests/</directory>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./src/UltimateSessionHandler/</directory>
+            <directory suffix=".php">./src/UltimateSessions/</directory>
         </whitelist>
     </filter>
     <logging>
