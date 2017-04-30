@@ -29,10 +29,26 @@ TODO - UltimateSessionManager - A class to provide object-oriented access to
 typical PHP session handling functions along with timestamp based session 
 security.
 
+Requires:
+- PHP 5.6+
+- PHP OpenSSL extension (if using encryption)
+- [defuse/php-encryption](https://github.com/defuse/php-encryption) library
+- PHPUnit 5.7+ (for unit tests only)
+
+This library is developed against PHP 7.1 and tested via Travis CI against:
+- PHP 5.6.*
+- PHP 7.0.*
+- PHP 7.1.*
+- PHP Nightly build
+
 [Full Library Documentation](docs/UltimateSession.md)
 
-The library is compatible with PHP 5.6.0+ and fully unit tested in PHP 5.6, 
-7.0, 7.1.
+[Travis CI build status](https://travis-ci.org/mikecbrant/php-ultimate-sessions)
+
+[Code Climate code coverage and health information](https://codeclimate.com/github/mikecbrant/php-ultimate-sessions)
+
+[Packagist page](https://packagist.org/packages/mikecbrant/php-ultimate-sessions)
+
 
 **Usage**
 
