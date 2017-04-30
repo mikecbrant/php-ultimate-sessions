@@ -31,7 +31,8 @@ security.
 
 [Full Library Documentation](docs/UltimateSession.md)
 
-The library is fully unit tested in PHP 5.6, 7.0, 7.1
+The library is compatible with PHP 5.6.0+ and fully unit tested in PHP 5.6, 
+7.0, 7.1.
 
 **Usage**
 
