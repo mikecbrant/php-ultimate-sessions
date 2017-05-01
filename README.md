@@ -74,6 +74,9 @@ session_start();
 Recommended reading related to PHP session security:
 
 [PHP Session Lifecycle](https://gist.github.com/mindplay-dk/623bdd50c1b4c0553cd3)
+
 [PHP.net Session Management Basics](http://php.net/manual/en/features.session.security.management.php)
+
 [PHP.net Securing Session INI Settings](http://php.net/manual/en/session.security.ini.php)
+
 [PHP SessionHandler Class](http://php.net/manual/en/class.sessionhandler.php)
