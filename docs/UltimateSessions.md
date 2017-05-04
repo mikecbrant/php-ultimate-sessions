@@ -7,5 +7,4 @@ API Index
         * [UltimateSessionConfig](MikeBrant-UltimateSessions-UltimateSessionConfig.md)
         * [UltimateSessionHandlerInterface](MikeBrant-UltimateSessions-UltimateSessionHandlerInterface.md)
         * [AbstractUltimateSessionHandler](MikeBrant-UltimateSessions-AbstractUltimateSessionHandler.md)
-        * [UltimateSessionManager](MikeBrant-UltimateSessions-UltimateSessionManager.md)
 

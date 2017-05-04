@@ -4,7 +4,8 @@ MikeBrant\UltimateSessions\UltimateSessionConfig
 Class UltimateSessionConfig
 
 This class stores session configuration values used by
-UltimateSessionHandlerTrait.
+UltimateSessionHandlerTrait. This class also provides input validation for
+values being set into php.ini.
 
 
 * Class name: UltimateSessionConfig
@@ -16,9 +17,9 @@ Constants
 ----------
 
 
-### DEFAULT_ENCRYPTION_COOKIE_PREFIX
+### DEFAULT_KEY_COOKIE_PREFIX
 
-    const DEFAULT_ENCRYPTION_COOKIE_PREFIX = 'ULTSESSKEY_'
+    const DEFAULT_KEY_COOKIE_PREFIX = 'ULTSESSKEY_'
 
 
 
@@ -87,22 +88,22 @@ should match setting used for session cookie.
 * Visibility: **protected**
 
 
-### $encryptionCookiePrefix
+### $keyCookiePrefix
 
-    protected string $encryptionCookiePrefix = self::DEFAULT_ENCRYPTION_COOKIE_PREFIX
-
-Prefix used for determining name used for encryption key cookie.
+    public string $keyCookiePrefix
 
 
 
-* Visibility: **protected**
+
+
+* Visibility: **public**
 
 
 ### 
 
-    public string 
+    public boolean 
 
-encryptionCookiePrefix
+cookieSecure
 
 
 
@@ -115,7 +116,7 @@ Methods
 
 ### getInstance
 
-    \MikeBrant\UltimateSessions\UltimateSessionConfig MikeBrant\UltimateSessions\UltimateSessionConfig::getInstance($useEncryption, $encryptionCookiePrefix)
+    \MikeBrant\UltimateSessions\UltimateSessionConfig MikeBrant\UltimateSessions\UltimateSessionConfig::getInstance($useEncryption, $keyCookiePrefix)
 
 Factory method for returning instance of UltimateSessionConfig
 based on configuration derived from combination of php.ini session.*
@@ -129,7 +130,7 @@ settings and parametric input.
 
 #### Arguments
 * $useEncryption **mixed** - &lt;p&gt;boolean&lt;/p&gt;
-* $encryptionCookiePrefix **mixed** - &lt;p&gt;string&lt;/p&gt;
+* $keyCookiePrefix **mixed** - &lt;p&gt;string&lt;/p&gt;
 
 
 
@@ -246,9 +247,9 @@ Magic getter to provide public-like access to config.
 
 
 
-### setEncryptionCookiePrefix
+### setKeyCookiePrefix
 
-    void MikeBrant\UltimateSessions\UltimateSessionConfig::setEncryptionCookiePrefix(string $encryptionCookiePrefix)
+    void MikeBrant\UltimateSessions\UltimateSessionConfig::setKeyCookiePrefix(string $keyCookiePrefix)
 
 
 
@@ -258,7 +259,7 @@ Magic getter to provide public-like access to config.
 
 
 #### Arguments
-* $encryptionCookiePrefix **string**
+* $keyCookiePrefix **string**
 
 
 

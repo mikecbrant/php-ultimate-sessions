@@ -5,6 +5,7 @@ Class UltimateSessionHandler
 
 This class extends PHP's \SessionHandler implementation to use
 UltimateSession functionality exposed through UltimateSessionHandlerTrait.
+This class provides optional encryption of data stored in session.
 
 See article on \SessionHandler call pattern from PHP internals at
 https://gist.github.com/mindplay-dk/623bdd50c1b4c0553cd3
@@ -56,7 +57,7 @@ Methods
 
 ### __construct
 
-    \MikeBrant\UltimateSessions\UltimateSessionHandlerInterface MikeBrant\UltimateSessions\UltimateSessionHandlerInterface::__construct($useEncryption, $encryptionCookiePrefix)
+    \MikeBrant\UltimateSessions\UltimateSessionHandlerInterface MikeBrant\UltimateSessions\UltimateSessionHandlerInterface::__construct(\MikeBrant\UltimateSessions\UltimateSessionConfig $config)
 
 UltimateSessionHandlerInterface constructor.
 
@@ -67,8 +68,7 @@ UltimateSessionHandlerInterface constructor.
 
 
 #### Arguments
-* $useEncryption **mixed**
-* $encryptionCookiePrefix **mixed**
+* $config **[MikeBrant\UltimateSessions\UltimateSessionConfig](MikeBrant-UltimateSessions-UltimateSessionConfig.md)**
 
 
 
@@ -109,7 +109,7 @@ config settings.
 
 ### sessionHandlerInit
 
-    void MikeBrant\UltimateSessions\UltimateSessionHandlerInterface::sessionHandlerInit($useEncryption, $encryptionCookiePrefix)
+    void MikeBrant\UltimateSessions\UltimateSessionHandlerInterface::sessionHandlerInit()
 
 Method to initialize session handler.  This method must be called in
 constructor from any class inheriting UltimateSessionHandlerTrait.
@@ -123,10 +123,6 @@ This method is implemented in UltimateSessionHandlerTrait.
 * Visibility: **public**
 * This method is defined by [MikeBrant\UltimateSessions\UltimateSessionHandlerInterface](MikeBrant-UltimateSessions-UltimateSessionHandlerInterface.md)
 
-
-#### Arguments
-* $useEncryption **mixed** - &lt;p&gt;boolean&lt;/p&gt;
-* $encryptionCookiePrefix **mixed** - &lt;p&gt;string&lt;/p&gt;
 
 
 
@@ -224,7 +220,7 @@ This method is implemented in UltimateSessionHandlerTrait.
 
 ### setEncryptionKey
 
-    \MikeBrant\UltimateSessions\Key MikeBrant\UltimateSessions\UltimateSessionHandlerInterface::setEncryptionKey(string $sessionId)
+    \Defuse\Crypto\Key MikeBrant\UltimateSessions\UltimateSessionHandlerInterface::setEncryptionKey(string $sessionId)
 
 Method which instantiates Defuse\Crypto\Key object and sets it on
 encrpytionKey property in UltimateSessionHandlerTrait. Key can either be

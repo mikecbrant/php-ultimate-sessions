@@ -25,7 +25,8 @@ An abstract class made available for those wanting to implement their own
 session handler that does not extend from SessionHandler.  This would be an 
 atypical situation, but it is here if needed.
 
-TODO - UltimateSessionManager - A class to provide object-oriented access to 
+(Planned for future) UltimateSessionManager - A class to provide 
+object-oriented access to 
 typical PHP session handling functions along with timestamp based session 
 security.
 
@@ -52,19 +53,24 @@ This library is developed against PHP 7.1 and tested via Travis CI against:
 
 **Usage**
 
-Usage is intended to be dead simple.  Just instantiate the 
-UltimateSessionHandler class, passing optional parameters:
+Usage is intended to be dead simple.  Just instantiate
+UltimateSessoinConfig passing optional parameters:
 - `$useEncryption` (boolean, default `false`)
-- `$encryptionCookiePrefix` (string, default `ULTSESS_`)
+- `$keyCookiePrefix` (string, default `ULTSESS_`)
 
-and then start your session.
+Then pass this config to a new UltimateSessionHandler instance
+and start your session.
 
 ```php
 
 use \MikeBrant\UltimateSessions;
 
 try {
-    new UltimateSessionHandler($useEncryption, $encryptionCookiePrefix);
+    $sessionConfig = UltimateSessionConfig::getInstance(
+        $useEncryption, 
+        $keyCookiePrefix)
+    ;
+    new UltimateSessionHandler($sessionConfig);
 } catch (\Exception $e) {
     // handle as needed (or don't try-catch at all)
 }

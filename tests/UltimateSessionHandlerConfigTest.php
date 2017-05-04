@@ -55,7 +55,7 @@ class UltimateSessionHandlerConfigTest extends TestCase
             [['domain', 0, '/', true, 0, 'prefix']],
             [['domain', 0, '/', true,'true', 'prefix']],
             [['domain', 0, '/', true, '', 'prefix']],
-            /** invalid non-empty string set on encryptionCookiePrefix */
+            /** invalid non-empty string set on keyCookiePrefix */
             [['domain', 0, '/', true, true, '']],
             [['domain', 0, '/', true, true, null]],
             [['domain', 0, '/', true, true, false]],
@@ -69,14 +69,14 @@ class UltimateSessionHandlerConfigTest extends TestCase
      * @covers \MikeBrant\UltimateSessions\UltimateSessionConfig
      *
      * @param boolean $useEncryption
-     * @param string $encryptionCookiePrefix
+     * @param string $keyCookiePrefix
      * @throws \InvalidArgumentException
      */
     public function testGetInstanceAndConstructorTypicalUsePaths(
         $useEncryption = false,
-        $encryptionCookiePrefix = UltimateSessionConfig::DEFAULT_ENCRYPTION_COOKIE_PREFIX
+        $keyCookiePrefix = UltimateSessionConfig::DEFAULT_KEY_COOKIE_PREFIX
     ) {
-        $config = UltimateSessionConfig::getInstance($useEncryption, $encryptionCookiePrefix);
+        $config = UltimateSessionConfig::getInstance($useEncryption, $keyCookiePrefix);
         $this->assertEquals(
             ini_get('session.cookie_domain'),
             $config->cookieDomain
@@ -95,8 +95,8 @@ class UltimateSessionHandlerConfigTest extends TestCase
         );
         $this->assertEquals($useEncryption, $config->useEncryption);
         $this->assertEquals(
-            $encryptionCookiePrefix,
-            $config->encryptionCookiePrefix
+            $keyCookiePrefix,
+            $config->keyCookiePrefix
         );
     }
 
@@ -125,7 +125,7 @@ class UltimateSessionHandlerConfigTest extends TestCase
         $config['cookiePath'] = $valueArray[2];
         $config['cookieSecure'] = $valueArray[3];
         $config['useEncryption'] = $valueArray[4];
-        $config['encryptionCookiePrefix'] = $valueArray[5];
+        $config['keyCookiePrefix'] = $valueArray[5];
 
         new UltimateSessionConfig($config);
     }

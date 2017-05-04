@@ -42,13 +42,12 @@ abstract class AbstractUltimateSessionHandler implements UltimateSessionHandlerI
      * should call this constructor such that session handler is registered
      * properly.
      *
-     * @param boolean $useEncryption
-     * @param string $encryptionCookiePrefix
-     * @throws \InvalidArgumentException
+     * @param UltimateSessionConfig $config
      * @throws \Exception
      */
-    public function __construct($useEncryption, $encryptionCookiePrefix) {
-        $this->sessionHandlerInit($useEncryption, $encryptionCookiePrefix);
+    public function __construct(UltimateSessionConfig $config) {
+        $this->config = $config;
+        $this->sessionHandlerInit();
     }
 
     /**

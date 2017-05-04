@@ -87,11 +87,10 @@ interface UltimateSessionHandlerInterface extends \SessionHandlerInterface
     /**
      * UltimateSessionHandlerInterface constructor.
      *
-     * @param $useEncryption
-     * @param $encryptionCookiePrefix
+     * @param UltimateSessionConfig $config
      * @return self
      */
-    function __construct($useEncryption, $encryptionCookiePrefix);
+    function __construct(UltimateSessionConfig $config);
 
     /**
      * Method to set ASCII encryption key to cookie based on values derived from
@@ -182,9 +181,7 @@ interface UltimateSessionHandlerInterface extends \SessionHandlerInterface
      *
      * This method is implemented in UltimateSessionHandlerTrait.
      *
-     * @param $useEncryption boolean
-     * @param $encryptionCookiePrefix string
      * @return void
      */
-    function sessionHandlerInit($useEncryption, $encryptionCookiePrefix);
+    function sessionHandlerInit();
 }

@@ -48,21 +48,12 @@ trait UltimateSessionHandlerTrait
      * Method to initialize session handler.  This method must be called in
      * constructor from any class inheriting UltimateSessionHandlerTrait.
      *
-     * @param boolean $useEncryption
-     * @param string $encryptionCookiePrefix
      * @return void
      * @throws \Exception
      */
-    public function sessionHandlerInit(
-        $useEncryption,
-        $encryptionCookiePrefix
-    ) {
+    public function sessionHandlerInit() {
         try {
             $this->configureIniSettings();
-            $this->config = UltimateSessionConfig::getInstance(
-                $useEncryption,
-                $encryptionCookiePrefix
-            );
         } catch (\Exception $e) {
             throw new \Exception(
                 "Unable to establish session using Ultimate Sessions library. " .
@@ -110,7 +101,7 @@ trait UltimateSessionHandlerTrait
                 'Value must be non-zero length string'
             );
         }
-        $cookieName = $this->config->encryptionCookiePrefix . $sessionId;
+        $cookieName = $this->config->keyCookiePrefix . $sessionId;
         setcookie(
             $cookieName,
             $asciiKey,
@@ -133,7 +124,7 @@ trait UltimateSessionHandlerTrait
      */
     public function deleteEncryptionKeyCookie($sessionId) {
         $this->validateSessionId($sessionId);
-        $cookieName = $this->config->encryptionCookiePrefix . $sessionId;
+        $cookieName = $this->config->keyCookiePrefix . $sessionId;
         setcookie(
             $cookieName,
             null,
@@ -190,16 +181,16 @@ trait UltimateSessionHandlerTrait
      * @throws \InvalidArgumentException
      */
     public function setEncryptionKey($sessionId) {
-        $cookieName = $this->config->encryptionCookiePrefix . $sessionId;
+        $cookieName = $this->config->keyCookiePrefix . $sessionId;
         if(!empty($_COOKIE[$cookieName])) {
             $this->encryptionKey = Key::loadFromAsciiSafeString($_COOKIE[$cookieName]);
-        } else {
-            $this->encryptionKey = Key::createNewRandomKey();
-            $this->setEncryptionKeyCookie(
-                $sessionId,
-                $this->encryptionKey->saveToAsciiSafeString()
-            );
+            return $this->encryptionKey;
         }
+        $this->encryptionKey = Key::createNewRandomKey();
+        $this->setEncryptionKeyCookie(
+            $sessionId,
+            $this->encryptionKey->saveToAsciiSafeString()
+        );
         return $this->encryptionKey;
     }
 
@@ -234,15 +225,14 @@ trait UltimateSessionHandlerTrait
          *
          * @codeCoverageIgnoreStart
          */
+        $requiredIniSettings = array_merge(
+            UltimateSessionHandlerInterface::REQUIRED_INI_SETTINGS,
+            UltimateSessionHandlerInterface::REQUIRED_INI_SETTINGS_PHP_BELOW_7_1_0
+        );
         if (version_compare(PHP_VERSION, '7.1.0', '>=')) {
             $requiredIniSettings = array_merge(
                 UltimateSessionHandlerInterface::REQUIRED_INI_SETTINGS,
                 UltimateSessionHandlerInterface::REQUIRED_INI_SETTINGS_PHP_7_1_0
-            );
-        } else {
-            $requiredIniSettings = array_merge(
-                UltimateSessionHandlerInterface::REQUIRED_INI_SETTINGS,
-                UltimateSessionHandlerInterface::REQUIRED_INI_SETTINGS_PHP_BELOW_7_1_0
             );
         }
         /** @codeCoverageIgnoreEnd */

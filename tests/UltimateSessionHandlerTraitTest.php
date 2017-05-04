@@ -14,9 +14,9 @@ class TraitWrapperClass extends \SessionHandler implements UltimateSessionHandle
 {
     use UltimateSessionHandlerTrait;
 
-    public function __construct($useEncryption, $encryptionCookiePrefix)
+    public function __construct(UltimateSessionConfig $config)
     {
-        // do nothing
+        $this->config = $config;
     }
 }
 
@@ -49,7 +49,8 @@ class UltimateSessionHandlerTraitTest extends TestCase
 
     protected function setUp()
     {
-        $this->trait = new TraitWrapperClass(false, 'x');
+        $config = UltimateSessionConfig::getInstance(false, 'x');
+        $this->trait = new TraitWrapperClass($config);
     }
 
     protected function tearDown()
@@ -83,7 +84,7 @@ class UltimateSessionHandlerTraitTest extends TestCase
         ];
     }
 
-    public function invalidaAsciiKeyProvider()
+    public function invalidAsciiKeyProvider()
     {
         return [
             [null],
@@ -123,24 +124,20 @@ class UltimateSessionHandlerTraitTest extends TestCase
      * @preserveGlobalState disabled
      * @dataProvider sessionHandlerInitProvider();
      * @covers \MikeBrant\UltimateSessions\UltimateSessionHandlerTrait
-     *
-     * @param $useEncryption
-     * @param $keyPrefix
      */
-    public function testSessionHandlerInit($useEncryption, $keyPrefix)
+    public function testSessionHandlerInit()
     {
+        $requiredIniSettings = array_merge(
+            UltimateSessionHandlerInterface::REQUIRED_INI_SETTINGS,
+            UltimateSessionHandlerInterface::REQUIRED_INI_SETTINGS_PHP_BELOW_7_1_0
+        );
         if (version_compare(PHP_VERSION, '7.1.0', '>=')) {
             $requiredIniSettings = array_merge(
                 UltimateSessionHandlerInterface::REQUIRED_INI_SETTINGS,
                 UltimateSessionHandlerInterface::REQUIRED_INI_SETTINGS_PHP_7_1_0
             );
-        } else {
-            $requiredIniSettings = array_merge(
-                UltimateSessionHandlerInterface::REQUIRED_INI_SETTINGS,
-                UltimateSessionHandlerInterface::REQUIRED_INI_SETTINGS_PHP_BELOW_7_1_0
-            );
         }
-        $this->trait->sessionHandlerInit($useEncryption, $keyPrefix);
+        $this->trait->sessionHandlerInit();
         foreach($requiredIniSettings as $setting => $value) {
             $this->assertEquals($value, ini_get($setting));
         }
@@ -164,7 +161,7 @@ class UltimateSessionHandlerTraitTest extends TestCase
         } else {
             define(__NAMESPACE__ . '\PHP_VERSION', '7.1.0');
         }
-        $this->trait->sessionHandlerInit(false, 'prefix');
+        $this->trait->sessionHandlerInit();
     }
 
     /**
@@ -173,7 +170,9 @@ class UltimateSessionHandlerTraitTest extends TestCase
      */
     public function testSessionHandlerInitThrowsExceptionOnBadConfig()
     {
-        $this->trait->sessionHandlerInit('bad value', false);
+        $config = UltimateSessionConfig::getInstance('bad value', false);
+        $this->trait = new TraitWrapperClass($config);
+        $this->trait->sessionHandlerInit();
     }
 
     /**
@@ -216,7 +215,7 @@ class UltimateSessionHandlerTraitTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidaAsciiKeyProvider
+     * @dataProvider invalidAsciiKeyProvider
      * @expectedException \InvalidArgumentException
      * @covers \MikeBrant\UltimateSessions\UltimateSessionHandlerTrait::setEncryptionKeyCookie()
      * @param $asciiKey
@@ -240,7 +239,9 @@ class UltimateSessionHandlerTraitTest extends TestCase
         $cookieKey = $cookiePrefix . self::$validSessionId;
         $_COOKIE[$cookieKey] = 'test';
         $headerValue = 'Set-Cookie: ' . $cookieKey . '=deleted';
-        $this->trait->sessionHandlerInit(false, $cookiePrefix);
+        $config = UltimateSessionConfig::getInstance(true, $cookiePrefix);
+        $this->trait = new TraitWrapperClass($config);
+        $this->trait->sessionHandlerInit();
         $this->trait->deleteEncryptionKeyCookie(self::$validSessionId);
         $this->assertArrayNotHasKey($cookieKey, $_COOKIE);
         $this->assertStringStartsWith($headerValue, xdebug_get_headers()[0]);
@@ -260,7 +261,9 @@ class UltimateSessionHandlerTraitTest extends TestCase
         $serializedData = serialize($testData);
         $cookiePrefix = 'ULTSESS_';
         $cookieKey = $cookiePrefix . self::$validSessionId;
-        $this->trait->sessionHandlerInit(true, $cookiePrefix);
+        $config = UltimateSessionConfig::getInstance(true, $cookiePrefix);
+        $this->trait = new TraitWrapperClass($config);
+        $this->trait->sessionHandlerInit();
         $encryptedData = $this->trait->encrypt(
             self::$validSessionId,
             $serializedData
@@ -279,5 +282,4 @@ class UltimateSessionHandlerTraitTest extends TestCase
         );
         $this->assertEquals($serializedData, $decryptedData);
     }
-
 }

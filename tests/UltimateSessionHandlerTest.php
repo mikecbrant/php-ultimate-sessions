@@ -63,18 +63,19 @@ class UltimateSessionHandlerTest extends TestCase
      * @dataProvider cartesianProvider
      * @covers \MikeBrant\UltimateSessions\UltimateSessionHandler
      */
-    public function testReadAndWrite($useEncryption, $encryptionCookiePrefix, $data)
+    public function testReadAndWrite($useEncryption, $keyCookiePrefix, $data)
     {
         if (is_null($useEncryption)) {
-            $handler = new UltimateSessionHandler();
-        } elseif (is_null($encryptionCookiePrefix)) {
-            $handler = new UltimateSessionHandler($useEncryption);
+            $config = UltimateSessionConfig::getInstance();
+        } elseif (is_null($keyCookiePrefix)) {
+            $config = UltimateSessionConfig::getInstance($useEncryption);
         } else {
-            $handler = new UltimateSessionHandler(
+            $config = UltimateSessionConfig::getInstance(
                 $useEncryption,
-                $encryptionCookiePrefix
+                $keyCookiePrefix
             );
         }
+        $handler = new UltimateSessionHandler($config);
         $this->assertInstanceOf(UltimateSessionHandler::class, $handler);
         session_start();
         $_SESSION['key'] = $data;

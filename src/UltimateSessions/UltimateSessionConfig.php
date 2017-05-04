@@ -15,7 +15,7 @@ namespace MikeBrant\UltimateSessions;
  * @property-read int cookieLifetime
  * @property-read string cookiePath
  * @property-read boolean cookieSecure
- * @property-read string encryptionCookiePrefix
+ * @property-read string $keyCookiePrefix
  */
 class UltimateSessionConfig
 {
@@ -24,7 +24,7 @@ class UltimateSessionConfig
      *
      * @var string Default encryption key prefix.
      */
-    const DEFAULT_ENCRYPTION_COOKIE_PREFIX = 'ULTSESSKEY_';
+    const DEFAULT_KEY_COOKIE_PREFIX = 'ULTSESSKEY_';
 
     /**
      * Flag determining if encryption is to be used for the session.
@@ -70,7 +70,7 @@ class UltimateSessionConfig
      *
      * @var string Prefix used for naming of encryption key cookies
      */
-    protected $encryptionCookiePrefix = self::DEFAULT_ENCRYPTION_COOKIE_PREFIX;
+    protected $keyCookiePrefix = self::DEFAULT_KEY_COOKIE_PREFIX;
 
     /**
      * Factory method for returning instance of UltimateSessionConfig
@@ -78,13 +78,13 @@ class UltimateSessionConfig
      * settings and parametric input.
      *
      * @param $useEncryption boolean
-     * @param $encryptionCookiePrefix string
+     * @param $keyCookiePrefix string
      * @return UltimateSessionConfig
      * @throws \InvalidArgumentException
      */
     public static function getInstance(
         $useEncryption = false,
-        $encryptionCookiePrefix = self::DEFAULT_ENCRYPTION_COOKIE_PREFIX
+        $keyCookiePrefix = self::DEFAULT_KEY_COOKIE_PREFIX
     ) {
         $handlerConfig = [];
         $handlerConfig['cookieDomain'] = ini_get('session.cookie_domain');
@@ -93,7 +93,7 @@ class UltimateSessionConfig
         $handlerConfig['cookiePath'] = ini_get('session.cookie_path');
         $handlerConfig['cookieSecure'] = (bool)ini_get('session.cookie_secure');
         $handlerConfig['useEncryption'] = $useEncryption;
-        $handlerConfig['encryptionCookiePrefix'] = $encryptionCookiePrefix;
+        $handlerConfig['keyCookiePrefix'] = $keyCookiePrefix;
 
         return new UltimateSessionConfig($handlerConfig);
     }
@@ -186,14 +186,14 @@ class UltimateSessionConfig
     }
 
     /**
-     * @param string $encryptionCookiePrefix
+     * @param string $keyCookiePrefix
      * @return void
      * @throws \InvalidArgumentException
      */
-    public function setEncryptionCookiePrefix($encryptionCookiePrefix)
+    public function setKeyCookiePrefix($keyCookiePrefix)
     {
-        $this->validateNonEmptyString($encryptionCookiePrefix);
-        $this->encryptionCookiePrefix = $encryptionCookiePrefix;
+        $this->validateNonEmptyString($keyCookiePrefix);
+        $this->keyCookiePrefix = $keyCookiePrefix;
     }
 
     /**

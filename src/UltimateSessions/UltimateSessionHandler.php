@@ -26,16 +26,12 @@ class UltimateSessionHandler extends \SessionHandler implements UltimateSessionH
     /**
      * UltimateSessionHandler constructor.
      *
-     * @param boolean $useEncryption
-     * @param string $encryptionCookiePrefix
-     * @throws \InvalidArgumentException
+     * @param UltimateSessionConfig $config
      * @throws \Exception
      */
-    public function __construct(
-        $useEncryption = false,
-        $encryptionCookiePrefix = UltimateSessionConfig::DEFAULT_ENCRYPTION_COOKIE_PREFIX
-    ) {
-        $this->sessionHandlerInit($useEncryption, $encryptionCookiePrefix);
+    public function __construct(UltimateSessionConfig $config) {
+        $this->config = $config;
+        $this->sessionHandlerInit();
     }
 
     /**
