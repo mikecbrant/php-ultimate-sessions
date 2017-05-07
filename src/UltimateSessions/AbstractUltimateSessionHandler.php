@@ -7,7 +7,7 @@ namespace MikeBrant\UltimateSessions;
  *
  * This is abstract base class for extension for cases where one does not
  * want to directly inherit from PHP's \SessionHandler class as is done in
- * UltimateSessionConfig, but still want to leverage the functionality
+ * UltimateSessionHandlerConfig, but still want to leverage the functionality
  * provided in UltimateSessionHandlerTrait which is composed into both classes.
  *
  * For most use cases, it would likely be preferable to extend
@@ -42,10 +42,11 @@ abstract class AbstractUltimateSessionHandler implements UltimateSessionHandlerI
      * should call this constructor such that session handler is registered
      * properly.
      *
-     * @param UltimateSessionConfig $config
+     * @param UltimateSessionHandlerConfig $config
      * @throws \Exception
      */
-    public function __construct(UltimateSessionConfig $config) {
+    public function __construct(UltimateSessionHandlerConfig $config)
+    {
         $this->config = $config;
         $this->sessionHandlerInit();
     }

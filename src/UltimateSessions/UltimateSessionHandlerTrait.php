@@ -32,7 +32,7 @@ trait UltimateSessionHandlerTrait
      * UltimateSessionHandleConfig object and needed for classes inheriting
      * UltimateSessionHandlerTrait.
      *
-     * @var UltimateSessionConfig Session handler configuration
+     * @var UltimateSessionHandlerConfig Session handler configuration
      */
     protected $config = null;
 
@@ -51,7 +51,8 @@ trait UltimateSessionHandlerTrait
      * @return void
      * @throws \Exception
      */
-    public function sessionHandlerInit() {
+    public function sessionHandlerInit()
+    {
         try {
             $this->configureIniSettings();
         } catch (\Exception $e) {
@@ -74,7 +75,8 @@ trait UltimateSessionHandlerTrait
      * @return void
      * @throws \InvalidArgumentException
      */
-    public function validateSessionId($sessionId) {
+    public function validateSessionId($sessionId)
+    {
         $regex = UltimateSessionHandlerInterface::SESSION_ID_REGEX_PHP_BELOW_7_1_0;
         if(version_compare(PHP_VERSION, '7.1.0', '>=')) {
             $regex = UltimateSessionHandlerInterface::SESSION_ID_REGEX_PHP_7_1_0;
@@ -94,7 +96,8 @@ trait UltimateSessionHandlerTrait
      * @return void
      * @throws \InvalidArgumentException
      */
-    public function setEncryptionKeyCookie($sessionId, $asciiKey) {
+    public function setEncryptionKeyCookie($sessionId, $asciiKey)
+    {
         $this->validateSessionId($sessionId);
         if(empty($asciiKey) || !is_string($asciiKey)) {
             throw new \InvalidArgumentException(
@@ -122,7 +125,8 @@ trait UltimateSessionHandlerTrait
      * @return void
      * @throws \InvalidArgumentException
      */
-    public function deleteEncryptionKeyCookie($sessionId) {
+    public function deleteEncryptionKeyCookie($sessionId)
+    {
         $this->validateSessionId($sessionId);
         $cookieName = $this->config->keyCookiePrefix . $sessionId;
         setcookie(
@@ -147,7 +151,8 @@ trait UltimateSessionHandlerTrait
      * @throws \Defuse\Crypto\Exception\EnvironmentIsBrokenException
      * @throws \InvalidArgumentException
      */
-    public function encrypt($sessionId, $sessionData) {
+    public function encrypt($sessionId, $sessionData)
+    {
         $key = $this->getEncryptionKey($sessionId);
         return Crypto::encrypt($sessionData, $key);
     }
@@ -162,7 +167,8 @@ trait UltimateSessionHandlerTrait
      * @throws \Defuse\Crypto\Exception\EnvironmentIsBrokenException
      * @throws \InvalidArgumentException
      */
-    public function getEncryptionKey($sessionId) {
+    public function getEncryptionKey($sessionId)
+    {
         if($this->encryptionKey instanceof Key === false) {
             return $this->setEncryptionKey($sessionId);
         }
@@ -180,7 +186,8 @@ trait UltimateSessionHandlerTrait
      * @throws \Defuse\Crypto\Exception\EnvironmentIsBrokenException
      * @throws \InvalidArgumentException
      */
-    public function setEncryptionKey($sessionId) {
+    public function setEncryptionKey($sessionId)
+    {
         $cookieName = $this->config->keyCookiePrefix . $sessionId;
         if(!empty($_COOKIE[$cookieName])) {
             $this->encryptionKey = Key::loadFromAsciiSafeString($_COOKIE[$cookieName]);
@@ -205,7 +212,8 @@ trait UltimateSessionHandlerTrait
      * @throws \Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException
      * @throws \InvalidArgumentException
      */
-    public function decrypt($sessionId, $sessionData) {
+    public function decrypt($sessionId, $sessionData)
+    {
         $key = $this->getEncryptionKey($sessionId);
         return Crypto::decrypt($sessionData, $key);
     }
@@ -218,7 +226,8 @@ trait UltimateSessionHandlerTrait
      * @return void
      * @throws \RuntimeException
      */
-    private function configureIniSettings() {
+    private function configureIniSettings()
+    {
         /**
          * Ignore these lines from code coverage as they are covered in build
          * tests against different PHP versions.
@@ -257,7 +266,8 @@ trait UltimateSessionHandlerTrait
      * @param UltimateSessionHandlerInterface $handler
      * @return void
      */
-    private function setSessionHandler(UltimateSessionHandlerInterface $handler) {
+    private function setSessionHandler(UltimateSessionHandlerInterface $handler)
+    {
         session_set_save_handler($handler);
     }
 }

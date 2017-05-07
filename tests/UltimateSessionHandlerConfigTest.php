@@ -66,7 +66,7 @@ class UltimateSessionHandlerConfigTest extends TestCase
 
     /**
      * @dataProvider getInstanceProvider
-     * @covers \MikeBrant\UltimateSessions\UltimateSessionConfig
+     * @covers \MikeBrant\UltimateSessions\UltimateSessionHandlerConfig
      *
      * @param boolean $useEncryption
      * @param string $keyCookiePrefix
@@ -74,9 +74,9 @@ class UltimateSessionHandlerConfigTest extends TestCase
      */
     public function testGetInstanceAndConstructorTypicalUsePaths(
         $useEncryption = false,
-        $keyCookiePrefix = UltimateSessionConfig::DEFAULT_KEY_COOKIE_PREFIX
+        $keyCookiePrefix = UltimateSessionHandlerConfig::DEFAULT_KEY_COOKIE_PREFIX
     ) {
-        $config = UltimateSessionConfig::getInstance($useEncryption, $keyCookiePrefix);
+        $config = UltimateSessionHandlerConfig::getInstance($useEncryption, $keyCookiePrefix);
         $this->assertEquals(
             ini_get('session.cookie_domain'),
             $config->cookieDomain
@@ -102,18 +102,18 @@ class UltimateSessionHandlerConfigTest extends TestCase
 
     /**
      * @expectedException \OutOfBoundsException
-     * @covers \MikeBrant\UltimateSessions\UltimateSessionConfig::__get()
+     * @covers \MikeBrant\UltimateSessions\UltimateSessionHandlerConfig::__get()
      */
     public function testGetMagicMethodThrowsException()
     {
-        $config = new UltimateSessionConfig();
+        $config = new UltimateSessionHandlerConfig();
         $config->badProperty;
     }
 
     /**
      * @dataProvider validationExceptionProvider
      * @expectedException \InvalidArgumentException
-     * @covers \MikeBrant\UltimateSessions\UltimateSessionConfig::<protected>
+     * @covers \MikeBrant\UltimateSessions\UltimateSessionHandlerConfig::<protected>
      *
      * @param array $valueArray
      */
@@ -127,6 +127,6 @@ class UltimateSessionHandlerConfigTest extends TestCase
         $config['useEncryption'] = $valueArray[4];
         $config['keyCookiePrefix'] = $valueArray[5];
 
-        new UltimateSessionConfig($config);
+        new UltimateSessionHandlerConfig($config);
     }
 }

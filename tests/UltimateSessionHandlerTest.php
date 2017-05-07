@@ -66,11 +66,11 @@ class UltimateSessionHandlerTest extends TestCase
     public function testReadAndWrite($useEncryption, $keyCookiePrefix, $data)
     {
         if (is_null($useEncryption)) {
-            $config = UltimateSessionConfig::getInstance();
+            $config = UltimateSessionHandlerConfig::getInstance();
         } elseif (is_null($keyCookiePrefix)) {
-            $config = UltimateSessionConfig::getInstance($useEncryption);
+            $config = UltimateSessionHandlerConfig::getInstance($useEncryption);
         } else {
-            $config = UltimateSessionConfig::getInstance(
+            $config = UltimateSessionHandlerConfig::getInstance(
                 $useEncryption,
                 $keyCookiePrefix
             );

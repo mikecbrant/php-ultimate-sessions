@@ -10,8 +10,10 @@ engines:
     enabled: true
 ratings:
   paths:
-    - "**UltimateSessionConfig.php"
+    - src/UltimateSessions/**
 exclude_paths:
   - build/
+  - docs/
   - tests/
   - vendor/
+  - "README.md"

@@ -14,7 +14,7 @@ class TraitWrapperClass extends \SessionHandler implements UltimateSessionHandle
 {
     use UltimateSessionHandlerTrait;
 
-    public function __construct(UltimateSessionConfig $config)
+    public function __construct(UltimateSessionHandlerConfig $config)
     {
         $this->config = $config;
     }
@@ -49,7 +49,7 @@ class UltimateSessionHandlerTraitTest extends TestCase
 
     protected function setUp()
     {
-        $config = UltimateSessionConfig::getInstance(false, 'x');
+        $config = UltimateSessionHandlerConfig::getInstance(false, 'x');
         $this->trait = new TraitWrapperClass($config);
     }
 
@@ -170,7 +170,7 @@ class UltimateSessionHandlerTraitTest extends TestCase
      */
     public function testSessionHandlerInitThrowsExceptionOnBadConfig()
     {
-        $config = UltimateSessionConfig::getInstance('bad value', false);
+        $config = UltimateSessionHandlerConfig::getInstance('bad value', false);
         $this->trait = new TraitWrapperClass($config);
         $this->trait->sessionHandlerInit();
     }
@@ -239,7 +239,7 @@ class UltimateSessionHandlerTraitTest extends TestCase
         $cookieKey = $cookiePrefix . self::$validSessionId;
         $_COOKIE[$cookieKey] = 'test';
         $headerValue = 'Set-Cookie: ' . $cookieKey . '=deleted';
-        $config = UltimateSessionConfig::getInstance(true, $cookiePrefix);
+        $config = UltimateSessionHandlerConfig::getInstance(true, $cookiePrefix);
         $this->trait = new TraitWrapperClass($config);
         $this->trait->sessionHandlerInit();
         $this->trait->deleteEncryptionKeyCookie(self::$validSessionId);
@@ -261,7 +261,7 @@ class UltimateSessionHandlerTraitTest extends TestCase
         $serializedData = serialize($testData);
         $cookiePrefix = 'ULTSESS_';
         $cookieKey = $cookiePrefix . self::$validSessionId;
-        $config = UltimateSessionConfig::getInstance(true, $cookiePrefix);
+        $config = UltimateSessionHandlerConfig::getInstance(true, $cookiePrefix);
         $this->trait = new TraitWrapperClass($config);
         $this->trait->sessionHandlerInit();
         $encryptedData = $this->trait->encrypt(

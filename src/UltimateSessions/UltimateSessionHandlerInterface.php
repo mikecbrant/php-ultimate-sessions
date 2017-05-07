@@ -87,10 +87,10 @@ interface UltimateSessionHandlerInterface extends \SessionHandlerInterface
     /**
      * UltimateSessionHandlerInterface constructor.
      *
-     * @param UltimateSessionConfig $config
+     * @param UltimateSessionHandlerConfig $config
      * @return self
      */
-    function __construct(UltimateSessionConfig $config);
+    function __construct(UltimateSessionHandlerConfig $config);
 
     /**
      * Method to set ASCII encryption key to cookie based on values derived from

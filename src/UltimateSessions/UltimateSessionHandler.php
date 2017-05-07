@@ -26,10 +26,11 @@ class UltimateSessionHandler extends \SessionHandler implements UltimateSessionH
     /**
      * UltimateSessionHandler constructor.
      *
-     * @param UltimateSessionConfig $config
+     * @param UltimateSessionHandlerConfig $config
      * @throws \Exception
      */
-    public function __construct(UltimateSessionConfig $config) {
+    public function __construct(UltimateSessionHandlerConfig $config)
+    {
         $this->config = $config;
         $this->sessionHandlerInit();
     }
@@ -45,7 +46,8 @@ class UltimateSessionHandler extends \SessionHandler implements UltimateSessionH
      * @throws \Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException
      * @throws \InvalidArgumentException
      */
-    public function read($sessionId) {
+    public function read($sessionId)
+    {
         $this->validateSessionId($sessionId);
         $sessionData = parent::read($sessionId);
         if($this->config->useEncryption && !empty($sessionData)) {
@@ -65,7 +67,8 @@ class UltimateSessionHandler extends \SessionHandler implements UltimateSessionH
      * @throws \Defuse\Crypto\Exception\EnvironmentIsBrokenException
      * @throws \InvalidArgumentException
      */
-    public function write($sessionId, $sessionData) {
+    public function write($sessionId, $sessionData)
+    {
         $this->validateSessionId($sessionId);
         if($this->config->useEncryption) {
             $sessionData = $this->encrypt($sessionId, $sessionData);

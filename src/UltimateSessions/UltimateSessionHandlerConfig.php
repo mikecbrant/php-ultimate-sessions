@@ -3,7 +3,7 @@
 namespace MikeBrant\UltimateSessions;
 
 /**
- * Class UltimateSessionConfig
+ * Class UltimateSessionHandlerConfig
  *
  * This class stores session configuration values used by
  * UltimateSessionHandlerTrait. This class also provides input validation for
@@ -15,9 +15,9 @@ namespace MikeBrant\UltimateSessions;
  * @property-read int cookieLifetime
  * @property-read string cookiePath
  * @property-read boolean cookieSecure
- * @property-read string $keyCookiePrefix
+ * @property-read string keyCookiePrefix
  */
-class UltimateSessionConfig
+class UltimateSessionHandlerConfig
 {
     /**
      * Class constant for default encryption key prefix value
@@ -73,33 +73,35 @@ class UltimateSessionConfig
     protected $keyCookiePrefix = self::DEFAULT_KEY_COOKIE_PREFIX;
 
     /**
-     * Factory method for returning instance of UltimateSessionConfig
+     * Factory method for returning instance of UltimateSessionHandlerConfig
      * based on configuration derived from combination of php.ini session.*
-     * settings and parametric input.
+     * settings and parametric input. This is typically the preferred method
+     * for instantiating this class unless you have specific reason to vary
+     * from default settings.
      *
      * @param $useEncryption boolean
      * @param $keyCookiePrefix string
-     * @return UltimateSessionConfig
+     * @return UltimateSessionHandlerConfig
      * @throws \InvalidArgumentException
      */
     public static function getInstance(
         $useEncryption = false,
         $keyCookiePrefix = self::DEFAULT_KEY_COOKIE_PREFIX
     ) {
-        $handlerConfig = [];
-        $handlerConfig['cookieDomain'] = ini_get('session.cookie_domain');
-        $handlerConfig['cookieLifetime'] =
+        $config = [];
+        $config['cookieDomain'] = ini_get('session.cookie_domain');
+        $config['cookieLifetime'] =
             (int)ini_get('session.cookie_lifetime');
-        $handlerConfig['cookiePath'] = ini_get('session.cookie_path');
-        $handlerConfig['cookieSecure'] = (bool)ini_get('session.cookie_secure');
-        $handlerConfig['useEncryption'] = $useEncryption;
-        $handlerConfig['keyCookiePrefix'] = $keyCookiePrefix;
+        $config['cookiePath'] = ini_get('session.cookie_path');
+        $config['cookieSecure'] = (bool)ini_get('session.cookie_secure');
+        $config['useEncryption'] = $useEncryption;
+        $config['keyCookiePrefix'] = $keyCookiePrefix;
 
-        return new UltimateSessionConfig($handlerConfig);
+        return new UltimateSessionHandlerConfig($config);
     }
 
     /**
-     * UltimateSessionConfig constructor. Expects associative array with
+     * UltimateSessionHandlerConfig constructor. Expects associative array with
      * key values that exactly match this class' property names.
      *
      * @param array $config
@@ -121,7 +123,7 @@ class UltimateSessionConfig
      */
     public function __get($name)
     {
-        if (!property_exists(UltimateSessionConfig::class, $name)) {
+        if (!property_exists(UltimateSessionHandlerConfig::class, $name)) {
             throw new \OutOfBoundsException(
                 "The property '{$name}' you have tried to access does not exist."
             );
