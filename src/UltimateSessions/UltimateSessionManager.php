@@ -315,8 +315,14 @@ class UltimateSessionManager implements LoggerAwareInterface
      */
     protected function needsIdRegen() {
         return (
-            $this->metadata->regenerateIdAt <= time() ||
-            $this->metadata->sessionStartCount >= $this->config->regenIdCount
+            (
+                $this->config->regenIdInterval > 0 &&
+                time() >= $this->metadata->regenerateIdAt
+            ) ||
+            (
+                $this->config->regenIdCount > 0 &&
+                $this->metadata->sessionStartCount >= $this->config->regenIdCount
+            )
         );
     }
 

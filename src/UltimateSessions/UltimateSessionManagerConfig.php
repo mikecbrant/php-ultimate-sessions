@@ -31,8 +31,8 @@ class UltimateSessionManagerConfig
 
     /**
      * Value to determine time (in minutes) after which forced session
-     * id regeneration will occur. A value of 0 indicates no time-based id
-     * rotation.
+     * id regeneration will occur. Must be non-negative integer value. A
+     * value of 0 indicates no time-based id rotation.
      *
      * @var int
      */
@@ -40,8 +40,8 @@ class UltimateSessionManagerConfig
 
     /**
      * Value to determine the number of session_start events after which
-     * forced session id regeneration will occur. A value of 0 indicates no
-     * forced id rotation.
+     * forced session id regeneration will occur. Must be non-negative
+     * integer value. A value of 0 indicates no forced id rotation.
      *
      * @var int
      */
@@ -50,7 +50,7 @@ class UltimateSessionManagerConfig
     /**
      * Value to determine how long (in seconds) past session
      * id regeneration event to no longer allow access to session data to
-     * formerly valid session.
+     * formerly valid session. Must be non-negative integer value.
      *
      * @var int
      */
@@ -73,16 +73,16 @@ class UltimateSessionManagerConfig
         $ttlAfterIdRegen = null
     ) {
         if(!is_null($sessionName)) {
-            $this->setSessionName = $sessionName;
+            $this->setSessionName($sessionName);
         }
-        if(!is_null($$regenIdInterval)) {
-            $this->setRegenIdInterval = $regenIdInterval;
+        if(!is_null($regenIdInterval)) {
+            $this->setRegenIdInterval($regenIdInterval);
         }
         if(!is_null($regenIdCount)) {
-            $this->setRegenIdCount = $regenIdCount;
+            $this->setRegenIdCount($regenIdCount);
         }
         if(!is_null($ttlAfterIdRegen)) {
-            $this->setTtlAfterIdRegen = $ttlAfterIdRegen;
+            $this->setTtlAfterIdRegen($ttlAfterIdRegen);
         }
     }
 
