@@ -11,48 +11,67 @@ use PHPUnit\Framework\TestCase;
  */
 class UltimateSessionHandlerTest extends TestCase
 {
-    public function instantiationProvider()
+
+    /**
+     * @return array
+     */
+    public function useEncryptionDataOptions()
     {
         return [
-            [null, null],
-            [false, 'PREFIX_'],
-            [false, null],
-            [true, 'PREFIX_'],
-            [true, null]
+            null,
+            false,
+            true
+        ];
+
+    }
+
+    /**
+     * @return array
+     */
+    public function keyCookiePrefixOptions()
+    {
+        return [
+            null,
+            'PREFIX_'
         ];
     }
 
-    public function dataProvider()
+    /**
+     * @return array
+     */
+    public function dataOptions()
     {
         $stdClass = new \stdClass();
         $stdClass->key = 'value';
         $stdClass2 = new \stdClass();
         return [
-            [$stdClass],
-            [$stdClass2],
-            [[1, 2, 3, 4]],
-            [[]],
-            ['string'],
-            [''],
-            [true],
-            [false],
-            [1],
-            [0]
+            $stdClass,
+            $stdClass2,
+            [1, 2, 3, 4],
+            [],
+            'string',
+            '',
+            true,
+            false,
+            1,
+            0
         ];
     }
 
+    /**
+     * @return array
+     */
     public function cartesianProvider()
     {
-        $instantiations = $this->instantiationProvider();
-        $data = $this->dataProvider();
-        $cartesian = [];
-        foreach($data as $row) {
-            foreach($instantiations as $instantiation) {
-                $cartesian[] = array_merge($instantiation, $row);
+        $params = [];
+        foreach($this->useEncryptionDataOptions() as $encrypt) {
+            foreach($this->keyCookiePrefixOptions() as $prefix) {
+                foreach($this->dataOptions() as $data) {
+                    $params[] = [$encrypt, $prefix, $data];
+                }
             }
         }
-
-        return $cartesian;
+        return $params;
     }
 
     /**
@@ -62,6 +81,10 @@ class UltimateSessionHandlerTest extends TestCase
      * @preserveGlobalState disabled
      * @dataProvider cartesianProvider
      * @covers \MikeBrant\UltimateSessions\UltimateSessionHandler
+     *
+     * @param boolean|null $useEncryption
+     * @param string|null $keyCookiePrefix
+     * @param mixed $data
      */
     public function testReadAndWrite($useEncryption, $keyCookiePrefix, $data)
     {

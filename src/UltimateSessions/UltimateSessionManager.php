@@ -59,6 +59,20 @@ class UltimateSessionManager implements LoggerAwareInterface
     protected $metadata;
 
     /**
+     * Property which stores an optional callback that is triggered when a
+     * session ID change event occurs. This could, for example, be used
+     * in conjunction with
+     * UltimateSessionHandlerTrait::changeKeyCookieSessionId() method to
+     * change the cookie where the session data encryption key is stored.
+     * This callable should have the following signature:
+     *
+     * function (string $oldSessionId, string $newSessionId) { ... }
+     *
+     * @var callable
+     */
+    protected $sessionIdChangeCallback;
+
+    /**
      * Property which stores an optional callback for use when implementing
      * session handlers which require custom garbage collection logic. This
      * callback can be used to mark a particular session ID as eligible for
@@ -93,15 +107,20 @@ class UltimateSessionManager implements LoggerAwareInterface
      * logger adhering to Psr\Log\LoggerInterface
      *
      * @param UltimateSessionManagerConfig $config
+     * @param callable|null $sessionIdChangeCallback
      * @param callable|null $gcNotificationCallback
      * @param LoggerInterface|null $logger
      */
     public function __construct(
         UltimateSessionManagerConfig $config,
+        callable $sessionIdChangeCallback = null,
         callable $gcNotificationCallback = null,
         LoggerInterface $logger = null
     ) {
         $this->config = $config;
+        if(!is_null($sessionIdChangeCallback)) {
+            $this->sessionIdChangeCallback = $sessionIdChangeCallback;
+        }
         if(!is_null(($gcNotificationCallback))) {
             $this->gcNotificationCallback = $gcNotificationCallback;
         }
@@ -122,25 +141,132 @@ class UltimateSessionManager implements LoggerAwareInterface
      */
     public function startSession()
     {
-        if (!empty($this->config->sessionName)) {
-            session_name($this->config->sessionName);
-        }
         $result = session_start();
         if ($result === false) {
             throw new \RuntimeException('session_start() unexpectedly failed.');
         }
         if (empty($_SESSION)) {
-            return $this->initializeSession();
+            return $this->initializeSessionMetadata();
         }
         $this->metadata = $_SESSION[self::METADATA_KEY];
         if(!$this->isSessionValid()) {
-            $msg = "Session ID '" . session_id() . "' invalidated. JSON metadata dump:\n"
-                . json_encode($this->metadata, JSON_PRETTY_PRINT) . "\n";
+            $msg = "Session ID '" . $this->getSessionId() .
+                "' invalidated. JSON metadata dump:\n" .
+                json_encode($this->metadata, JSON_PRETTY_PRINT) . "\n";
             $this->log($msg);
             $this->destroySession();
             return false;
         }
         return $this->continueSession();
+    }
+
+    /**
+     * Method which wraps PHP's session_write_close() function enabling
+     * caller to close session to further modifications.
+     *
+     * @return void
+     */
+    public function commitSession()
+    {
+        session_write_close();
+    }
+
+    /**
+     * This method generates new session ID while also writing data expiry
+     * and session ID forwarding information to current session. This method
+     * calls forwardSession() method with generated ID to actually trigger
+     * session ID change. This method should be used by external callers to
+     * trigger session ID regeneration after critical state changes in the
+     * application such as login/logout, privilege escalation, etc.
+     *
+     * For PHP 7.1.0+ session_create_id() is used to generate new session ID to
+     * be passed to forwardSession(). For PHP < 7.1.0 session_regenerate_id()
+     * is called to create new session id, but session is then
+     * reverted to old session ID to add session forwarding information before
+     * calling forwardSession();
+     *
+     * This method not include in coverage, though it is unit tests as large
+     * portion of logic is dependent on PHP version.  Coverage is provided
+     * through tests in build environment.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return bool
+     */
+    public function regenerateId()
+    {
+        $oldSessionId = $this->getSessionId();
+        if (version_compare(PHP_VERSION, '7.1.0', '>=')) {
+            $newSessionId = session_create_id();
+        } else {
+            session_regenerate_id(false);
+            $newSessionId = $this->getSessionId();
+            $this->commitSession();
+            ini_set('session.use_strict_mode', 0);
+            session_id($oldSessionId);
+            session_start();
+            ini_set('session.use_strict_mode', 1);
+        }
+        $this->metadata->isActive = false;
+        $this->metadata->expireDataAt = time() + $this->config->ttlAfterIdRegen;
+        $this->metadata->forwardToSessionId = $newSessionId;
+        $this->writeMetadata();
+        $this->commitSession();
+        $sessionData = $_SESSION;
+        ini_set('session.use_strict_mode', 0);
+        session_id($newSessionId);
+        session_start();
+        ini_set('session.use_strict_mode', 1);
+        $_SESSION = $sessionData;
+        $this->executeSessionIdChangeCallback($oldSessionId, $newSessionId);
+        $this->executeGcNotificationCallback(
+            $oldSessionId,
+            $this->metadata->expireDataAt
+        );
+        $_COOKIE[$this->getSessionName()] = $newSessionId;
+        return $this->initializeSessionMetadata();
+    }
+
+    /**
+     * Method to fully unset all session data and close session. Note this
+     * method does not destroy the session cookie, which is not necessary
+     * when running session using strict mode, which is a baseline requirement
+     * for using this library.
+     *
+     * This method can be used by external callers to immediately disable all
+     * data access to an existing session and close the session for rare
+     * cases (i.e. expected security breach) where application logic may
+     * dictate such usage.
+     *
+     * @return void
+     */
+    public function destroySession()
+    {
+        $_SESSION = [];
+        $this->executeGcNotificationCallback($this->getSessionId(), time());
+        session_destroy();
+    }
+
+    /**
+     * Method which provides wrapper around PHP's session_id() function in a
+     * read-only context.
+     *
+     * @return string
+     */
+    public function getSessionId()
+    {
+        return session_id();
+    }
+
+    /**
+     * Method which provides wrapper around PHP's session_name() function in
+     * a read-only context.
+     *
+     * @return string
+     */
+    public function getSessionName()
+    {
+        return session_name();
     }
 
     /**
@@ -150,7 +276,7 @@ class UltimateSessionManager implements LoggerAwareInterface
      *
      * @return bool
      */
-    protected function initializeSession()
+    protected function initializeSessionMetadata()
     {
         $this->metadata = new UltimateSessionManagerMetadata();
         $this->metadata->regenerateIdAt = $this->metadata->instantiatedAt +
@@ -184,30 +310,6 @@ class UltimateSessionManager implements LoggerAwareInterface
     }
 
     /**
-     * This method generates new session ID while also writing data expiry
-     * and session ID forwarding information to current session. This method
-     * calls forwardSession() method with generated ID to actually trigger
-     * session ID change. This method should be used by external callers to
-     * trigger session ID regeneration after critical state changes in the
-     * application such as login/logout, privilege escalation, etc.
-     *
-     * @return bool
-     */
-    public function regenerateId()
-    {
-        $this->metadata->isActive = false;
-        $this->metadata->expireDataAt = time() + $this->config->ttlAfterIdRegen;
-        $newSessionId = session_create_id();
-        $this->metadata->forwardToSessionId = $newSessionId;
-        $this->writeMetadata();
-        $this->executeGcNotificationCallback(
-            session_id(),
-            $this->metadata->expireDataAt
-        );
-        return $this->forwardSession($newSessionId);
-    }
-
-    /**
      * This method accepts a session ID as generated by session_create_id(),
      * closes existing session and then initiates new session with passed
      * session ID.
@@ -217,31 +319,15 @@ class UltimateSessionManager implements LoggerAwareInterface
      */
     protected function forwardSession($newSessionId)
     {
-        session_write_close();
-
-        session_id($newSessionId);
+        $oldSessionId = $this->getSessionId();
+        $this->commitSession();
         ini_set('session.use_strict_mode', 0);
+        session_id($newSessionId);
         session_start();
         ini_set('session.use_strict_mode', 1);
-        return $this->initializeSession();
-    }
-
-    /**
-     * Method to fully unset all session data and close session. Note this
-     * method does not destroy the session cookie, which is not necessary
-     * when running session using strict mode, which is a baseline requirement
-     * for using this library.
-     *
-     * This method can be used by external callers to immediately disable all
-     * data access to an existing session and close the session for rare
-     * cases (i.e. expected security breach) where application logic may
-     * dictate such usage.
-     */
-    public function destroySession()
-    {
-        $_SESSION = [];
-        $this->executeGcNotificationCallback(session_id(), time());
-        session_destroy();
+        $this->executeSessionIdChangeCallback($oldSessionId, $newSessionId);
+        $_COOKIE[$this->getSessionName()] = $newSessionId;
+        return $this->initializeSessionMetadata();
     }
 
     /**
@@ -328,6 +414,8 @@ class UltimateSessionManager implements LoggerAwareInterface
 
     /**
      * Method to persist the metadata object to $_SESSION superglobal.
+     *
+     * @return void
      */
     protected function writeMetadata() {
         $_SESSION[self::METADATA_KEY] = $this->metadata;
@@ -342,9 +430,36 @@ class UltimateSessionManager implements LoggerAwareInterface
      */
     protected function generateFingerprint()
     {
-        $fingerprint = $_SERVER['HTTP_USER_AGENT'] . $_SERVER['HTTP_ACCEPT_ENCODING']
-            . $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-        return hash('sha56', $fingerprint);
+        $fingerprint = '';
+        if(!empty($_SERVER['HTTP_USER_AGENT'])) {
+            $fingerprint .= $_SERVER['HTTP_USER_AGENT'];
+        }
+        if(!empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
+            $fingerprint .= $_SERVER['HTTP_ACCEPT_ENCODING'];
+        }
+        if(!empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            $fingerprint .= $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+        }
+        if(empty($fingerprint)) {
+            $fingerprint = 'NO FINGERPRINT AVAILABLE';
+        }
+        return hash('sha256', $fingerprint);
+    }
+
+    /**
+     * @param $oldSessionId
+     * @param $newSessionId
+     * @return void
+     */
+    protected function executeSessionIdChangeCallback($oldSessionId, $newSessionId)
+    {
+        if(!is_null($this->sessionIdChangeCallback)) {
+            call_user_func(
+                $this->sessionIdChangeCallback,
+                $oldSessionId,
+                $newSessionId
+            );
+        }
     }
 
     /**
@@ -354,6 +469,7 @@ class UltimateSessionManager implements LoggerAwareInterface
      *
      * @param $sessionId
      * @param $expiryTimestamp
+     * @return void
      */
     protected function executeGcNotificationCallback($sessionId, $expiryTimestamp)
     {
@@ -371,6 +487,7 @@ class UltimateSessionManager implements LoggerAwareInterface
      * logging.
      *
      * @param LoggerInterface $logger
+     * @return void
      */
     public function setLogger(LoggerInterface $logger)
     {

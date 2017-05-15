@@ -17,12 +17,15 @@ class UltimateSessionManagerConfigTest extends TestCase
     public function constructorProvider()
     {
         return [
-            [null, null, null, null],
-            ['PHPSESSID', null, null, null],
-            [null, 0, 0, 0],
-            [null, 100, 100, 100],
-            ['PHPSESSID', 0, 0, 0],
-            ['PHPSESSID', 100, 100, 100]
+            [null, null, null],
+            [0, null, null],
+            [100, null, null],
+            [null, 0, null],
+            [null, 100, null],
+            [null, null, 0],
+            [null, null, 100],
+            [0, 0, 0],
+            [100, 100, 100]
         ];
     }
 
@@ -32,26 +35,21 @@ class UltimateSessionManagerConfigTest extends TestCase
     public function validationExceptionProvider()
     {
         return [
-            /** invalid string set on sessionName */
-            [false, null, null, null],
-            [1, null, null, null],
-            [0, null, null, null],
-            ['', null, null, null],
             /** invalid non-negative int set on regenIdInterval */
-            [null, -1, null, null],
-            [null, '', null, null],
-            [null, '0', null, null],
-            [null, false, null, null],
+            [-1, null, null],
+            ['', null, null],
+            ['0', null, null],
+            [false, null, null],
             /** invalid string set on regenIdCount */
-            [null, null, -1, null],
-            [null, null, '', null],
-            [null, null, '0', null],
-            [null, null, false, null],
+            [null, -1, null],
+            [null, '', null],
+            [null, '0', null],
+            [null, false, null],
             /** invalid boolean set on ttlAfterIdRegen */
-            [null, null, null, -1],
-            [null, null, null, ''],
-            [null, null, null, '0'],
-            [null, null, null, false]
+            [null, null, -1],
+            [null, null, ''],
+            [null, null, '0'],
+            [null, null, false]
         ];
     }
 
@@ -59,28 +57,20 @@ class UltimateSessionManagerConfigTest extends TestCase
      * @dataProvider constructorProvider
      * @covers \MikeBrant\UltimateSessions\UltimateSessionManagerConfig
      *
-     * @param string|null $sessionName
      * @param int|null $regenIdInterval
      * @param int|null $regenIdCount
      * @param int|null $ttlAfterIdRegen
      */
     public function testConstructorAndTypicalUsePaths(
-        $sessionName,
         $regenIdInterval,
         $regenIdCount,
         $ttlAfterIdRegen
     ) {
         $config = new UltimateSessionManagerConfig(
-            $sessionName,
             $regenIdInterval,
             $regenIdCount,
             $ttlAfterIdRegen
         );
-        if(!is_null($sessionName)) {
-            $this->assertEquals($sessionName, $config->sessionName);
-        } else {
-            $this->assertNull($config->sessionName);
-        }
         if(!is_null($regenIdInterval)) {
             $this->assertEquals($regenIdInterval, $config->regenIdInterval);
         } else {
@@ -113,19 +103,16 @@ class UltimateSessionManagerConfigTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @covers \MikeBrant\UltimateSessions\UltimateSessionManagerConfig::<protected>
      *
-     * @param string|null $sessionName
      * @param int|null $regenIdInterval
      * @param int|null $regenIdCount
      * @param int|null $ttlAfterIdRegen
      */
     public function testValidatorsThrowExceptions(
-        $sessionName,
         $regenIdInterval,
         $regenIdCount,
         $ttlAfterIdRegen
     ) {
         new UltimateSessionManagerConfig(
-            $sessionName,
             $regenIdInterval,
             $regenIdCount,
             $ttlAfterIdRegen

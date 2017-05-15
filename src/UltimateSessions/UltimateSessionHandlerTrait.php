@@ -142,6 +142,31 @@ trait UltimateSessionHandlerTrait
     }
 
     /**
+     * Method to associate encryption key cookie to a new session id. Thi
+     *
+     * @param $oldSessionId
+     * @param $newSessionId
+     * @throws \Defuse\Crypto\Exception\BadFormatException
+     * @throws \Defuse\Crypto\Exception\EnvironmentIsBrokenException
+     * @throws \InvalidArgumentException
+     */
+    public function changeKeyCookieSessionId($oldSessionId, $newSessionId)
+    {
+        $this->validateSessionId($oldSessionId);
+        $this->validateSessionId($newSessionId);
+        $oldCookieName = $this->config->keyCookiePrefix . $oldSessionId;
+        $asciiKey = '';
+        if(!empty($_COOKIE[$oldCookieName])) {
+            $asciiKey = $_COOKIE[$oldCookieName];
+        }
+        $this->deleteEncryptionKeyCookie($oldSessionId);
+        $this->setEncryptionKeyCookie(
+            $newSessionId,
+            $asciiKey
+        );
+    }
+
+    /**
      * Method to perform encryption of session data.
      *
      * @param string $sessionId
@@ -268,6 +293,6 @@ trait UltimateSessionHandlerTrait
      */
     private function setSessionHandler(UltimateSessionHandlerInterface $handler)
     {
-        session_set_save_handler($handler);
+        session_set_save_handler($handler, true);
     }
 }

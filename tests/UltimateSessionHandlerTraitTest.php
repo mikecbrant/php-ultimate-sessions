@@ -237,14 +237,78 @@ class UltimateSessionHandlerTraitTest extends TestCase
     {
         $cookiePrefix = 'ULTSESS_';
         $cookieKey = $cookiePrefix . self::$validSessionId;
-        $_COOKIE[$cookieKey] = 'test';
-        $headerValue = 'Set-Cookie: ' . $cookieKey . '=deleted';
+        $headerValue = 'Set-Cookie: ' . $cookieKey . '=';
         $config = UltimateSessionHandlerConfig::getInstance(true, $cookiePrefix);
         $this->trait = new TraitWrapperClass($config);
         $this->trait->sessionHandlerInit();
+        $key = $this->trait->getEncryptionKey(self::$validSessionId);
         $this->trait->deleteEncryptionKeyCookie(self::$validSessionId);
         $this->assertArrayNotHasKey($cookieKey, $_COOKIE);
-        $this->assertStringStartsWith($headerValue, xdebug_get_headers()[0]);
+        /**
+         * Initial cookie set
+         */
+        $this->assertStringStartsWith(
+            $headerValue . $key->saveToAsciiSafeString(),
+            xdebug_get_headers()[0]
+        );
+        /**
+         * Cookie delete
+         */
+        $this->assertStringStartsWith(
+            $headerValue . 'deleted',
+            xdebug_get_headers()[1]
+        );
+    }
+
+    /**
+     * his test requires process-isolation as we are "setting" cookies in
+     * code under test and will get headers already sent warning from PhpUnit
+     * test runner output if we don't.
+     *
+     * @runInSeparateProcess
+     * @covers \MikeBrant\UltimateSessions\UltimateSessionHandlerTrait::changeKeyCookieSessionId()
+     */
+    public function testChangeKeyCookieSessionId()
+    {
+        $initialSessionId = self::$validSessionId;
+        $newSessionId = str_replace('1', 'a', $initialSessionId);
+        $cookiePrefix = 'ULTSESS_';
+        $initialCookieKey = $cookiePrefix . $initialSessionId;
+        $newCookieKey = $cookiePrefix . $newSessionId;
+        $deletedCookieHeader = 'Set-Cookie: ' . $initialCookieKey . '=';
+        $newCookieHeader = 'Set-Cookie: ' . $newCookieKey . '=';
+        $config = UltimateSessionHandlerConfig::getInstance(true, $cookiePrefix);
+        $this->trait = new TraitWrapperClass($config);
+        $this->trait->sessionHandlerInit();
+        $key = $this->trait->getEncryptionKey($initialSessionId);
+        $this->assertArrayHasKey($initialCookieKey, $_COOKIE);
+        $asciiKey = $_COOKIE[$initialCookieKey];
+        $this->trait->changeKeyCookieSessionId($initialSessionId, $newSessionId);
+        $this->assertArrayNotHasKey($initialCookieKey, $_COOKIE);
+        $this->assertArrayHasKey($newCookieKey, $_COOKIE);
+        $this->assertEquals($asciiKey, $_COOKIE[$newCookieKey]);
+        $this->assertEquals($key, $this->trait->getEncryptionKey($newSessionId));
+        /**
+         * Initial cookie set
+         */
+        $this->assertStringStartsWith(
+            $deletedCookieHeader . $asciiKey,
+            xdebug_get_headers()[0]
+        );
+        /**
+         * Cookie delete
+         */
+        $this->assertStringStartsWith(
+            $deletedCookieHeader . 'deleted',
+            xdebug_get_headers()[1]
+        );
+        /**
+         * New cookie set
+         */
+        $this->assertStringStartsWith(
+            $newCookieHeader. $asciiKey,
+            xdebug_get_headers()[2]
+        );
     }
 
     /**

@@ -72,10 +72,12 @@ class UltimateSessionManagerMetadata implements \JsonSerializable
     public function __construct()
     {
         $this->instantiatedAt = time();
+        $this->regenerateIdAt = 0;
         $this->sessionStartCount = 1;
         $this->isActive = true;
         $this->expireDataAt = 0;
         $this->forwardToSessionId = '';
+        $this->fingerprint = '';
     }
 
     /**
