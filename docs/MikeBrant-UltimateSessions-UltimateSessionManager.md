@@ -199,7 +199,7 @@ is called to create new session id, but session is then
 reverted to old session ID to add session forwarding information before
 calling forwardSession();
 
-This method not include in coverage, though it is unit tests as large
+This method not include in coverage, though it is unit tested as large
 portion of logic is dependent on PHP version.  Coverage is provided
 through tests in build environment.
 

@@ -10,6 +10,7 @@ configuration options.
 
 * Class name: UltimateSessionLoader
 * Namespace: MikeBrant\UltimateSessions
+* This is an **abstract** class
 
 
 

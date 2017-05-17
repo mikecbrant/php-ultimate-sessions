@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
  *
  * @package MikeBrant\UltimateSessions
  */
-class UltimateSessionLoader
+abstract class UltimateSessionLoader
 {
     /**
      * Single static method in this class provided to allow setup of
@@ -21,7 +21,6 @@ class UltimateSessionLoader
      * key configuration options.
      *
      * @param bool $useEncryption
-     * @param callable|null $gcNotificationCallback
      * @param LoggerInterface|null $logger
      * @return UltimateSessionManager
      * @throws \InvalidArgumentException
