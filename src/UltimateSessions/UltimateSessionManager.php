@@ -220,9 +220,6 @@ class UltimateSessionManager implements LoggerAwareInterface
         ini_set('session.use_strict_mode', 0);
         session_id($newSessionId);
         session_start();
-        if(version_compare(PHP_VERSION, '7.2.0', '<')) {
-           ini_set('session.use_strict_mode', 1);
-        }
         $_SESSION = $sessionData;
         $this->executeSessionIdChangeCallback($oldSessionId, $newSessionId);
         $this->executeGcNotificationCallback(
@@ -330,11 +327,6 @@ class UltimateSessionManager implements LoggerAwareInterface
         ini_set('session.use_strict_mode', 0);
         session_id($newSessionId);
         session_start();
-        /** @codeCoverageIgnoreStart */
-        if(version_compare(PHP_VERSION, '7.2.0', '<')) {
-            ini_set('session.use_strict_mode', 1);
-        }
-        /** @codeCoverageIgnoreEnd */
         $this->executeSessionIdChangeCallback($oldSessionId, $newSessionId);
         $_COOKIE[$this->getSessionName()] = $newSessionId;
         return $this->initializeSessionMetadata();

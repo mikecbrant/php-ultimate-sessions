@@ -139,32 +139,29 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
         $_SESSION['test'] = true;
         $sessionId = $manager->getSessionId();
         $manager->commitSession();
-        $cookieHeaders = $this->getCoookieHeaders();
-        /**
-         * Session Cookie
-         */
-        $this->assertStringStartsWith(
-            'Set-Cookie: ' . $sessionName . '=' . $sessionId,
-            $cookieHeaders[0]
-        );
-        /**
-         * Encryption key cookie
-         */
+        $expectedCookieHeaders = [
+            $sessionName => $sessionId
+        ];
         if($encryptedSession) {
-            $this->assertStringStartsWith(
-                'Set-Cookie: ' . $keyCookiePrefix . $sessionId,
-                $cookieHeaders[1]
-            );
+            $expectedCookieHeaders[$keyCookiePrefix . $sessionId] =
+                $_COOKIE[$keyCookiePrefix . $sessionId];
         }
-        $_COOKIE = $this->getCookieArrayFromHeaders();
+        $this->assertEquals($expectedCookieHeaders, $this->getCookieArrayFromHeaders());
+
+        $_COOKIE = $expectedCookieHeaders;
         unset($manager);
         $_SESSION = [];
         header_remove();
 
-
         /**
          * Simulate new request
          */
+        if($encryptedSession) {
+            unset($expectedCookieHeaders[$keyCookiePrefix . $sessionId]);
+        }
+        $expectedCOOKIE = $_COOKIE;
+        ini_set('session.use_strict_mode', 0);
+        session_id($sessionId);
         if($encryptedSession) {
             $manager = new UltimateSessionManager(
                 $managerConfig,
@@ -176,6 +173,11 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
         $manager->startSession();
         $this->assertEquals($sessionId, $manager->getSessionId());
         $this->assertTrue($_SESSION['test']);
+        $this->assertEquals(
+            $expectedCookieHeaders,
+            $this->getCookieArrayFromHeaders()
+        );
+        $this->assertEquals($expectedCOOKIE, $_COOKIE);
     }
 
     /**
