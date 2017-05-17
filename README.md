@@ -112,7 +112,7 @@ if($result === false) {
 }
 
 // set session data as normal
-$_SESSION['data'] = 'value;
+$_SESSION['data'] = 'value';
 
 // manually regenerate session Id
 // as typically done around authentication or privelege level change
