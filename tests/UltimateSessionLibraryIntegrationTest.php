@@ -84,7 +84,7 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
      *
      * @return array
      */
-    protected function getCookieArray()
+    protected function getCookieArrayFromHeaders()
     {
         $cookieHeaders = $this->getCoookieHeaders();
         $cookies = [];
@@ -156,7 +156,7 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
                 $cookieHeaders[1]
             );
         }
-        $_COOKIE = $this->getCookieArray();
+        $_COOKIE = $this->getCookieArrayFromHeaders();
         unset($manager);
         $_SESSION = [];
         header_remove();
@@ -224,52 +224,21 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
         $this->assertNotEquals($sessionId, $newSessionId);
         $_SESSION['test2'] = true;
         $manager->commitSession();
-        $cookieHeaders = $this->getCoookieHeaders();
-        $cookieCounter = 0;
         /**
-         * Initial Session Cookie
+         * Verify cookies from header
          */
-        $this->assertStringStartsWith(
-            'Set-Cookie: ' . $sessionName . '=' . $sessionId,
-            $cookieHeaders[$cookieCounter]
-        );
-        $cookieCounter++;
-        /**
-         * Encryption key cookie
-         */
+        $expectedCookieHeaders = [
+            $sessionName => $newSessionId
+        ];
         if($encryptedSession) {
-            $this->assertStringStartsWith(
-                'Set-Cookie: ' . $keyCookiePrefix . $sessionId,
-                $cookieHeaders[$cookieCounter]
-            );
-            $cookieCounter++;
+            $expectedCookieHeaders[$keyCookiePrefix . $sessionId] = 'deleted';
+            $expectedCookieHeaders[$keyCookiePrefix . $newSessionId] =
+                $_COOKIE[$keyCookiePrefix . $newSessionId];
         }
-        /**
-         * New session cookie
-         */
-        $this->assertStringStartsWith(
-            'Set-Cookie: ' . $sessionName . '=' . $newSessionId,
-            $cookieHeaders[$cookieCounter]
-        );
-        $cookieCounter++;
-        /**
-         * Old encryption cookie is deleted and new one sent
-         */
-        if($encryptedSession) {
-            $this->assertStringStartsWith(
-                'Set-Cookie: ' . $keyCookiePrefix . $sessionId . '=deleted',
-                $cookieHeaders[$cookieCounter]
-            );
-            $cookieCounter++;
-            $this->assertStringStartsWith(
-                'Set-Cookie: ' . $keyCookiePrefix . $newSessionId,
-                $cookieHeaders[$cookieCounter]
-            );
-        }
-
-        $expectedCookies = $this->getCookieArray();
+        $this->assertEquals($expectedCookieHeaders, $this->getCookieArrayFromHeaders());
         unset($manager);
         $_SESSION = [];
+        $_COOKIE = [];
         header_remove();
 
         /**
@@ -278,20 +247,14 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
          * subsequent request.
          */
         $_COOKIE[$sessionName] = $sessionId;
-        $expectedCookies[$sessionName] = $newSessionId;
-        session_id($sessionId);
+        $expectedCOOKIE = $expectedCookieHeaders;
         if($encryptedSession) {
-            /**
-             * Get encryption key from new session id key and set to old
-             */
             $_COOKIE[$keyCookiePrefix . $sessionId] =
-                $expectedCookies[$keyCookiePrefix . $newSessionId];
-            unset($_COOKIE[$keyCookiePrefix . $newSessionId]);
-            /**
-             * Remove old session id key from expected array.
-             */
-            unset($expectedCookies[$keyCookiePrefix . $sessionId]);
+                $expectedCookieHeaders[$keyCookiePrefix . $newSessionId];
+            unset($expectedCOOKIE[$keyCookiePrefix . $sessionId]);
         }
+        ini_set('session.use_strict_mode', 0);
+        session_id($sessionId);
         if($encryptedSession) {
             $manager = new UltimateSessionManager(
                 $managerConfig,
@@ -304,35 +267,8 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
         $this->assertEquals($newSessionId, $manager->getSessionId());
         $this->assertTrue($_SESSION['test']);
         $this->assertTrue($_SESSION['test2']);
-        $cookieHeaders = $this->getCoookieHeaders();
-        /**
-         * Old session cookie
-         */
-        $this->assertStringStartsWith(
-            'Set-Cookie: ' . $sessionName . '=' . $sessionId,
-            $cookieHeaders[0]
-        );
-        /**
-         * New session cookie
-         */
-        $this->assertStringStartsWith(
-            'Set-Cookie: ' . $sessionName . '=' . $newSessionId,
-            $cookieHeaders[1]
-        );
-        /**
-         * Old encryption cookie is deleted and new one sent
-         */
-        if($encryptedSession) {
-            $this->assertStringStartsWith(
-                'Set-Cookie: ' . $keyCookiePrefix . $sessionId . '=deleted',
-                $cookieHeaders[2]
-            );
-            $this->assertStringStartsWith(
-                'Set-Cookie: ' . $keyCookiePrefix . $newSessionId,
-                $cookieHeaders[3]
-            );
-            $this->assertEquals($expectedCookies, $_COOKIE);
-        }
+        $this->assertEquals($expectedCookieHeaders, $this->getCookieArrayFromHeaders());
+        $this->assertEquals($expectedCOOKIE, $_COOKIE);
     }
 
     /**

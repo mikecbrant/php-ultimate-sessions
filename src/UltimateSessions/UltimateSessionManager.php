@@ -189,7 +189,7 @@ class UltimateSessionManager implements LoggerAwareInterface
      * reverted to old session ID to add session forwarding information before
      * calling forwardSession();
      *
-     * This method not include in coverage, though it is unit tests as large
+     * This method not include in coverage, though it is unit tested as large
      * portion of logic is dependent on PHP version.  Coverage is provided
      * through tests in build environment.
      *
@@ -220,7 +220,9 @@ class UltimateSessionManager implements LoggerAwareInterface
         ini_set('session.use_strict_mode', 0);
         session_id($newSessionId);
         session_start();
-        ini_set('session.use_strict_mode', 1);
+        if(version_compare(PHP_VERSION, '7.2.0', '<')) {
+           ini_set('session.use_strict_mode', 1);
+        }
         $_SESSION = $sessionData;
         $this->executeSessionIdChangeCallback($oldSessionId, $newSessionId);
         $this->executeGcNotificationCallback(
@@ -328,7 +330,11 @@ class UltimateSessionManager implements LoggerAwareInterface
         ini_set('session.use_strict_mode', 0);
         session_id($newSessionId);
         session_start();
-        ini_set('session.use_strict_mode', 1);
+        /** @codeCoverageIgnoreStart */
+        if(version_compare(PHP_VERSION, '7.2.0', '<')) {
+            ini_set('session.use_strict_mode', 1);
+        }
+        /** @codeCoverageIgnoreEnd */
         $this->executeSessionIdChangeCallback($oldSessionId, $newSessionId);
         $_COOKIE[$this->getSessionName()] = $newSessionId;
         return $this->initializeSessionMetadata();
