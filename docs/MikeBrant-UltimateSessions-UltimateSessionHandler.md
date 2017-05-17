@@ -3,9 +3,10 @@ MikeBrant\UltimateSessions\UltimateSessionHandler
 
 Class UltimateSessionHandler
 
-This class extends PHP's \SessionHandler implementation to use
-UltimateSession functionality exposed through UltimateSessionHandlerTrait.
-This class provides optional encryption of data stored in session.
+A class which extends PHP's `SessionHandler` class with added encryption
+capability. Class instantiation automatically sets php.ini session settings
+to their preferred values and sets the class as session save handler via
+`set_session_save_handler()`.
 
 See article on \SessionHandler call pattern from PHP internals at
 https://gist.github.com/mindplay-dk/623bdd50c1b4c0553cd3
@@ -28,7 +29,7 @@ Properties
 
 ### $config
 
-    protected \MikeBrant\UltimateSessions\UltimateSessionConfig $config = null
+    protected \MikeBrant\UltimateSessions\UltimateSessionHandlerConfig $config = null
 
 Object storing session handler configuration values as derived from an
 UltimateSessionHandleConfig object and needed for classes inheriting
@@ -57,7 +58,7 @@ Methods
 
 ### __construct
 
-    \MikeBrant\UltimateSessions\UltimateSessionHandlerInterface MikeBrant\UltimateSessions\UltimateSessionHandlerInterface::__construct(\MikeBrant\UltimateSessions\UltimateSessionConfig $config)
+    \MikeBrant\UltimateSessions\UltimateSessionHandlerInterface MikeBrant\UltimateSessions\UltimateSessionHandlerInterface::__construct(\MikeBrant\UltimateSessions\UltimateSessionHandlerConfig $config)
 
 UltimateSessionHandlerInterface constructor.
 
@@ -68,7 +69,7 @@ UltimateSessionHandlerInterface constructor.
 
 
 #### Arguments
-* $config **[MikeBrant\UltimateSessions\UltimateSessionConfig](MikeBrant-UltimateSessions-UltimateSessionConfig.md)**
+* $config **[MikeBrant\UltimateSessions\UltimateSessionHandlerConfig](MikeBrant-UltimateSessions-UltimateSessionHandlerConfig.md)**
 
 
 
@@ -179,6 +180,23 @@ This method is implemented in UltimateSessionHandlerTrait.
 
 #### Arguments
 * $sessionId **string**
+
+
+
+### changeKeyCookieSessionId
+
+    mixed MikeBrant\UltimateSessions\UltimateSessionHandler::changeKeyCookieSessionId($oldSessionId, $newSessionId)
+
+Method to associate encryption key cookie to a new session id. Thi
+
+
+
+* Visibility: **public**
+
+
+#### Arguments
+* $oldSessionId **mixed**
+* $newSessionId **mixed**
 
 
 

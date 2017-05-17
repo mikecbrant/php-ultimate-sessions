@@ -240,6 +240,9 @@ trait UltimateSessionHandlerTrait
     public function decrypt($sessionId, $sessionData)
     {
         $key = $this->getEncryptionKey($sessionId);
+        if(empty($sessionData)) {
+            return '';
+        }
         return Crypto::decrypt($sessionData, $key);
     }
 

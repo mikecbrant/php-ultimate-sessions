@@ -5,7 +5,7 @@ Class AbstractUltimateSessionHandler
 
 This is abstract base class for extension for cases where one does not
 want to directly inherit from PHP's \SessionHandler class as is done in
-UltimateSessionConfig, but still want to leverage the functionality
+UltimateSessionHandlerConfig, but still want to leverage the functionality
 provided in UltimateSessionHandlerTrait which is composed into both classes.
 
 For most use cases, it would likely be preferable to extend
@@ -43,7 +43,7 @@ Properties
 
 ### $config
 
-    protected \MikeBrant\UltimateSessions\UltimateSessionConfig $config = null
+    protected \MikeBrant\UltimateSessions\UltimateSessionHandlerConfig $config = null
 
 Object storing session handler configuration values as derived from an
 UltimateSessionHandleConfig object and needed for classes inheriting
@@ -72,7 +72,7 @@ Methods
 
 ### __construct
 
-    \MikeBrant\UltimateSessions\UltimateSessionHandlerInterface MikeBrant\UltimateSessions\UltimateSessionHandlerInterface::__construct(\MikeBrant\UltimateSessions\UltimateSessionConfig $config)
+    \MikeBrant\UltimateSessions\UltimateSessionHandlerInterface MikeBrant\UltimateSessions\UltimateSessionHandlerInterface::__construct(\MikeBrant\UltimateSessions\UltimateSessionHandlerConfig $config)
 
 UltimateSessionHandlerInterface constructor.
 
@@ -83,7 +83,7 @@ UltimateSessionHandlerInterface constructor.
 
 
 #### Arguments
-* $config **[MikeBrant\UltimateSessions\UltimateSessionConfig](MikeBrant-UltimateSessions-UltimateSessionConfig.md)**
+* $config **[MikeBrant\UltimateSessions\UltimateSessionHandlerConfig](MikeBrant-UltimateSessions-UltimateSessionHandlerConfig.md)**
 
 
 
@@ -262,6 +262,23 @@ This method is implemented in UltimateSessionHandlerTrait.
 
 #### Arguments
 * $sessionId **string**
+
+
+
+### changeKeyCookieSessionId
+
+    mixed MikeBrant\UltimateSessions\AbstractUltimateSessionHandler::changeKeyCookieSessionId($oldSessionId, $newSessionId)
+
+Method to associate encryption key cookie to a new session id. Thi
+
+
+
+* Visibility: **public**
+
+
+#### Arguments
+* $oldSessionId **mixed**
+* $newSessionId **mixed**
 
 
 

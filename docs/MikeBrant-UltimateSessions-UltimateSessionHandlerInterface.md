@@ -81,7 +81,7 @@ Methods
 
 ### __construct
 
-    \MikeBrant\UltimateSessions\UltimateSessionHandlerInterface MikeBrant\UltimateSessions\UltimateSessionHandlerInterface::__construct(\MikeBrant\UltimateSessions\UltimateSessionConfig $config)
+    \MikeBrant\UltimateSessions\UltimateSessionHandlerInterface MikeBrant\UltimateSessions\UltimateSessionHandlerInterface::__construct(\MikeBrant\UltimateSessions\UltimateSessionHandlerConfig $config)
 
 UltimateSessionHandlerInterface constructor.
 
@@ -91,7 +91,7 @@ UltimateSessionHandlerInterface constructor.
 
 
 #### Arguments
-* $config **[MikeBrant\UltimateSessions\UltimateSessionConfig](MikeBrant-UltimateSessions-UltimateSessionConfig.md)**
+* $config **[MikeBrant\UltimateSessions\UltimateSessionHandlerConfig](MikeBrant-UltimateSessions-UltimateSessionHandlerConfig.md)**
 
 
 

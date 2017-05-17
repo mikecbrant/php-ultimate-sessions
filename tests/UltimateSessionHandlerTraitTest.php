@@ -261,7 +261,7 @@ class UltimateSessionHandlerTraitTest extends TestCase
     }
 
     /**
-     * his test requires process-isolation as we are "setting" cookies in
+     * This test requires process-isolation as we are "setting" cookies in
      * code under test and will get headers already sent warning from PhpUnit
      * test runner output if we don't.
      *
@@ -345,5 +345,23 @@ class UltimateSessionHandlerTraitTest extends TestCase
             $encryptedData
         );
         $this->assertEquals($serializedData, $decryptedData);
+    }
+
+    /**
+     * This test requires process-isolation as we are "setting" cookies in
+     * code under test and will get headers already sent warning from PhpUnit
+     * test runner output if we don't.
+     *
+     * @runInSeparateProcess
+     * @covers \MikeBrant\UltimateSessions\UltimateSessionHandlerTrait::decrypt()
+     */
+    public function testDecryptOnEmptyStringReturnsEmptyString()
+    {
+        $cookiePrefix = 'ULTSESS_';
+        $config = UltimateSessionHandlerConfig::getInstance(true, $cookiePrefix);
+        $this->trait = new TraitWrapperClass($config);
+        $this->trait->sessionHandlerInit();
+        $return = $this->trait->decrypt(self::$validSessionId, '');
+        $this->assertEquals('', $return);
     }
 }

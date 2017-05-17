@@ -14,7 +14,8 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
     /**
      * @return UltimateSessionHandlerConfig[]
      */
-    public function handlerConfig() {
+    public function handlerConfig()
+    {
         return [
             UltimateSessionHandlerConfig::getInstance(false),
             UltimateSessionHandlerConfig::getInstance(true)
@@ -24,7 +25,8 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
     /**
      * @return UltimateSessionManagerConfig[]
      */
-    public function managerConfig() {
+    public function managerConfig()
+    {
         return [
             new UltimateSessionManagerConfig(),
             new UltimateSessionManagerConfig(0, 0),
@@ -36,7 +38,8 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
     /**
      * @return array
      */
-    public function sessionConfigProvider() {
+    public function sessionConfigProvider()
+    {
         $params = [];
         foreach ($this->handlerConfig() as $handlerConfig) {
             foreach($this->managerConfig() as $managerConfig) {
@@ -63,7 +66,8 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
      *
      * @return array
      */
-    protected function getCoookieHeaders() {
+    protected function getCoookieHeaders()
+    {
         $headers = xdebug_get_headers();
         $return = [];
         foreach($headers as $header) {
@@ -80,7 +84,8 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
      *
      * @return array
      */
-    protected function getCookieArray() {
+    protected function getCookieArray()
+    {
         $cookieHeaders = $this->getCoookieHeaders();
         $cookies = [];
         foreach($cookieHeaders as $header) {
@@ -114,18 +119,18 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
         }
 
         $handler = new UltimateSessionHandler($handlerConfig);
-        $changeIdCallback = function ($oldSessionId, $newSessionId) use ($handler)
-        {
-            $handler->changeKeyCookieSessionId($oldSessionId, $newSessionId);
-        };
+        $changeIdCallback = null;
         if($encryptedSession) {
-            $manager = new UltimateSessionManager(
-                $managerConfig,
-                $changeIdCallback
-            );
-        } else {
-            $manager = new UltimateSessionManager($managerConfig);
+            $changeIdCallback = function ($oldSessionId, $newSessionId) use ($handler)
+            {
+                $handler->changeKeyCookieSessionId(
+                    $oldSessionId,
+                    $newSessionId
+                );
+            };
         }
+        $manager = new UltimateSessionManager($managerConfig, $changeIdCallback);
+
         $sessionName = $manager->getSessionName();
         /**
          * Start and end session
@@ -188,8 +193,7 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
     public function testSessionRegenerationAndForwarding(
         UltimateSessionHandlerConfig $handlerConfig,
         UltimateSessionManagerConfig $managerConfig
-    )
-    {
+    ) {
         $encryptedSession = $handlerConfig->useEncryption;
         if($encryptedSession) {
             $keyCookiePrefix = $handlerConfig->keyCookiePrefix;
@@ -329,5 +333,44 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
             );
             $this->assertEquals($expectedCookies, $_COOKIE);
         }
+    }
+
+    /**
+     * This test requires process-isolation.
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     * @dataProvider sessionConfigProvider
+     * @coversNothing
+     *
+     * @param UltimateSessionHandlerConfig $handlerConfig
+     * @param UltimateSessionManagerConfig $managerConfig
+     */
+    public function testInstantiationWithImplicitSessionClose(
+        UltimateSessionHandlerConfig $handlerConfig,
+        UltimateSessionManagerConfig $managerConfig
+    ) {
+        $encryptedSession = $handlerConfig->useEncryption;
+
+        $handler = new UltimateSessionHandler($handlerConfig);
+        $changeIdCallback = function ($oldSessionId, $newSessionId) use ($handler)
+        {
+            $handler->changeKeyCookieSessionId($oldSessionId, $newSessionId);
+        };
+        if($encryptedSession) {
+            $manager = new UltimateSessionManager(
+                $managerConfig,
+                $changeIdCallback
+            );
+        } else {
+            $manager = new UltimateSessionManager($managerConfig);
+        }
+
+        $manager->startSession();
+        $this->assertInstanceOf(
+            UltimateSessionManager::class,
+            $manager
+        );
+        $this->assertNotEmpty($manager->getSessionId());
     }
 }

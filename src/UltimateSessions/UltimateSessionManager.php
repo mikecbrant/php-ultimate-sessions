@@ -9,8 +9,8 @@ use Psr\Log\LogLevel;
 /**
  * Class UltimateSessionManager
  *
- * This class an object-oriented wrapper around common PHP session management
- * functions along with features geared at enchaning security
+ * This class is an object-oriented wrapper around common PHP session management
+ * functions along with features geared at enhancing security
  * and proper session management behaviors including:
  * - timestamp-based management for session data expiry;
  * - automated session ID regeneration at configurable time- and count-based
@@ -20,16 +20,20 @@ use Psr\Log\LogLevel;
  * against expired data or accesses with mis-matched fingerprints, which may
  * need further investigation. Only data within session metadata is logged.
  * An optional PSR-3 compliant logger to be used for logging in lieu of
- * default logging via error_log().
+ * default logging via `error_log()`.
+ *
+ * This class allows for setting of callback around session ID change events
+ * (ID regeneration or ID forwarding from expired session). For example, in
+ * recommended library configuration, this callback is used to trigger
+ * encryption key cookie regeneration using
+ * `UltimateSessionHandler::changeKeyCookieSessionId()`.
  *
  * For cases where custom session garbage collection is implemented
  * (something that should strongly be considered for production-level
  * applications), this class offers setting of an optional callback that
- * is passed session ID and data expiry timestamp information such that code
- * that provides the callback can be notified of session ID regeneration and
- * session destroy events so as to be able to mark those session ID's as
- * eligible for garbage collection after given timestamp (by touching files,
- * updating database field, etc.).
+ * is passed session ID and data expiry timestamp that can be used to mark
+ * those session ID's as eligible for garbage collection after given
+ * timestamp (by touching files, updating database field, etc.).
  *
  * @package MikeBrant\UltimateSessions
  */

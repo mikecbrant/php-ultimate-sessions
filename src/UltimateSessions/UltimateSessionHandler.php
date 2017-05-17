@@ -5,9 +5,10 @@ namespace MikeBrant\UltimateSessions;
 /**
  * Class UltimateSessionHandler
  *
- * This class extends PHP's \SessionHandler implementation to use
- * UltimateSession functionality exposed through UltimateSessionHandlerTrait.
- * This class provides optional encryption of data stored in session.
+ * A class which extends PHP's `SessionHandler` class with added encryption
+ * capability. Class instantiation automatically sets php.ini session settings
+ * to their preferred values and sets the class as session save handler via
+ * `set_session_save_handler()`.
  *
  * See article on \SessionHandler call pattern from PHP internals at
  * https://gist.github.com/mindplay-dk/623bdd50c1b4c0553cd3
@@ -50,7 +51,7 @@ class UltimateSessionHandler extends \SessionHandler implements UltimateSessionH
     {
         $this->validateSessionId($sessionId);
         $sessionData = parent::read($sessionId);
-        if($this->config->useEncryption && !empty($sessionData)) {
+        if($this->config->useEncryption) {
             return $this->decrypt($sessionId, $sessionData);
         }
         return $sessionData;
