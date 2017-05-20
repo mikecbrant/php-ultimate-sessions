@@ -46,12 +46,12 @@ class UltimateSessionLoaderTest extends TestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      * @dataProvider useEncryptionProvider
-     * @covers \MikeBrant\UltimateSessions\UltimateSessionLoader::initialize()
+     * @covers \MikeBrant\UltimateSessions\UltimateSessionLoader
      * @outputBuffering disabled
      *
      * @param boolean $useEncryption
      */
-    public function testInitialize($useEncryption)
+    public function testInitializeAndRegenerateID($useEncryption)
     {
         $manager = UltimateSessionLoader::initialize($useEncryption);
         $this->assertInstanceOf(
@@ -59,7 +59,10 @@ class UltimateSessionLoaderTest extends TestCase
             $manager
         );
         $manager->startSession();
-        $this->assertNotEmpty($manager->getSessionId());
+        $sessionId = $manager->getSessionId();
+        $this->assertNotEmpty($sessionId);
+        $manager->regenerateId();
+        $this->assertNotEquals($sessionId, $manager->getSessionId());
     }
 
     /**
@@ -68,7 +71,7 @@ class UltimateSessionLoaderTest extends TestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      * @dataProvider notBooleanProvider
-     * @covers \MikeBrant\UltimateSessions\UltimateSessionLoader::initialize()
+     * @covers \MikeBrant\UltimateSessions\UltimateSessionLoader
      * @outputBuffering disabled
      * @expectedException \InvalidArgumentException
      *

@@ -241,7 +241,7 @@ trait UltimateSessionHandlerTrait
     {
         $key = $this->getEncryptionKey($sessionId);
         if(empty($sessionData)) {
-            return '';
+            return $sessionData;
         }
         return Crypto::decrypt($sessionData, $key);
     }

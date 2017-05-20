@@ -135,6 +135,7 @@ class UltimateSessionLibraryIntegrationTest extends TestCase
         /**
          * Start and end session
          */
+        $this->assertEquals('', session_id());
         $manager->startSession();
         $_SESSION['test'] = true;
         $sessionId = $manager->getSessionId();

@@ -54,13 +54,11 @@ the UltimateSession library using recommended settings, with a few minimal
 configuration options.
 
 Requires:
-- PHP 5.6+
 - PHP OpenSSL extension (if using encryption)
 - [defuse/php-encryption](https://github.com/defuse/php-encryption) library
-- PHPUnit 5.7+ (for unit tests only)
+- PHPUnit 6.1+ (for unit tests only)
 
-This library is developed against PHP 7.1 and tested via Travis CI against:
-- PHP 5.6.*
+This library is tested via Travis CI against:
 - PHP 7.0.*
 - PHP 7.1.*
 - PHP Nightly build
